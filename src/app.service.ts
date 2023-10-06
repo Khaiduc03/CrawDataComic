@@ -50,12 +50,12 @@ export class AppService {
       };
 
       const image_headers = {
-        referer: 'https://toonily.com/',
+        referer: 'https://www.nettruyenus.com/',
         ...headers,
       };
       const response = await axios.get(imageUrl, {
         responseType: 'stream',
-        headers: image_headers
+        headers: image_headers,
       });
       // Lấy tên tệp từ URL
       const imageFileName = path.basename(imageUrl);
@@ -80,6 +80,56 @@ export class AppService {
       throw error;
     }
   }
+
+
+  
+async  downloadImage2(imageUrl: string, saveDir: string) {
+  try {
+    const USER_AGENT =
+      os.platform() === 'win32'
+        ? 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36'
+        : 'Mozilla/5.0 (X11; Linux ppc64le; rv:75.0) Gecko/20100101 Firefox/75.0';
+
+    const headers = {
+      dnt: '1',
+      'user-agent': USER_AGENT,
+      'accept-language': 'en-US,en;q=0.9',
+    };
+
+    const image_headers = {
+      referer: 'https://www.nettruyenus.com/',
+      ...headers,
+    };
+    const response = await axios.get(imageUrl, {
+      responseType: 'stream',
+      headers: image_headers,
+    });
+
+    // Tạo tên tệp dựa trên thời gian hiện tại và một số duy nhất
+    const timestamp = new Date().getTime();
+    const random = Math.floor(Math.random() * 1000);
+    const imageFileName = `${timestamp}_${random}.jpg`; // Đặt định dạng tên tệp tùy ý
+
+    // Tạo đường dẫn đầy đủ để lưu tệp
+    const imagePath = path.join(saveDir, imageFileName);
+
+    const writer = fs.createWriteStream(imagePath);
+
+    response.data.pipe(writer);
+
+    return new Promise((resolve, reject) => {
+      writer.on('finish', () => {
+        resolve(imagePath);
+      });
+
+      writer.on('error', (err) => {
+        reject(err);
+      });
+    });
+  } catch (error) {
+    throw error;
+  }
+}
 
   async readImagesFromDataDirectory(): Promise<{
     subdirectories: string[];
@@ -143,7 +193,9 @@ export class AppService {
 
   async detail_manga(): Promise<any> {
     const dataImages = [];
-    const manga = new Manga().build(MangaType.TOONILY);
+    const manga = new Manga().build(MangaType.NETTRUYEN, {
+      baseUrl: 'https://www.nettruyenus.com/',
+    });
     const { data } = await manga.getListLatestUpdate();
     // for(const item of data){
     //   const detail_manga = await manga.getDetailManga(item.href);
@@ -162,8 +214,7 @@ export class AppService {
     const { chapter_data, url } = await manga.getDataChapter(
       detail_manga.chapters[0].url,
     );
-    // const response = await axios.get(url);
-    // const header = response.headers;
+
     for (const item of chapter_data) {
       const itemDir = `data`;
       const imageDir = `${itemDir}/chapter`;
@@ -174,8 +225,9 @@ export class AppService {
       if (!fs.existsSync(imageDir)) {
         fs.mkdirSync(imageDir);
       }
-      await this.downloadImage(item.src_origin, imageDir);
+      await this.downloadImage2(item.src_origin, imageDir);
     }
+    return chapter_data;
   }
 
   async data_chapter(url: string): Promise<any> {
