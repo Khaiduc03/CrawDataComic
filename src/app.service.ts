@@ -3,14 +3,17 @@ import axios from 'axios';
 import * as fs from 'fs';
 import { Manga, MangaType } from 'manga-lib';
 import { CloudService } from './cloud';
+import { config } from 'process';
+import * as os from 'os';
 const path = require('path');
+
 @Injectable()
 export class AppService {
   constructor(private readonly cloud: CloudService) {}
 
-  async getLast_Page(): Promise<any> {
+  async getAndDownLoadImageByPage(page: number = 1): Promise<any> {
     const manga = new Manga().build(MangaType.TOONILY);
-    const { data } = await manga.getListLatestUpdate();
+    const { data } = await manga.getListLatestUpdate(page);
 
     const transformedList = data.map((item) => ({
       title: item.title,
@@ -28,12 +31,32 @@ export class AppService {
       }
       await this.downloadImage(item.image_url, imageDir);
     }
+
+    const response = await this.getImagesAndPushToCloudinary();
+    return response;
   }
 
   async downloadImage(imageUrl: string, saveDir: string) {
     try {
-      const response = await axios.get(imageUrl, { responseType: 'stream' });
+      const USER_AGENT =
+        os.platform() === 'win32'
+          ? 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36'
+          : 'Mozilla/5.0 (X11; Linux ppc64le; rv:75.0) Gecko/20100101 Firefox/75.0';
 
+      const headers = {
+        dnt: '1',
+        'user-agent': USER_AGENT,
+        'accept-language': 'en-US,en;q=0.9',
+      };
+
+      const image_headers = {
+        referer: 'https://toonily.com/',
+        ...headers,
+      };
+      const response = await axios.get(imageUrl, {
+        responseType: 'stream',
+        headers: image_headers
+      });
       // Lấy tên tệp từ URL
       const imageFileName = path.basename(imageUrl);
 
@@ -104,7 +127,8 @@ export class AppService {
   }
 
   async getImagesAndPushToCloudinary(): Promise<any> {
-    const { jpgFiles, subdirectories } = await this.readImagesFromDataDirectory();
+    const { jpgFiles, subdirectories } =
+      await this.readImagesFromDataDirectory();
     const response = await this.cloud.uploadImagesToCloudinaryV2(
       jpgFiles,
       subdirectories,
@@ -115,10 +139,43 @@ export class AppService {
     return response;
   }
 
-  async detail_manga(url: string): Promise<any> {
-    const manga = new Manga().build(MangaType.MANGADEX);
-    const detail_manga = await manga.getDetailManga(url);
-    return detail_manga.chapters;
+  ///////////////////////////////////////////////////////////////
+
+  async detail_manga(): Promise<any> {
+    const dataImages = [];
+    const manga = new Manga().build(MangaType.TOONILY);
+    const { data } = await manga.getListLatestUpdate();
+    // for(const item of data){
+    //   const detail_manga = await manga.getDetailManga(item.href);
+    // }
+
+    const detail_manga = await manga.getDetailManga(data[0].href);
+    // for (const data_chapter of detail_manga.chapters) {
+    //   const dataImage = await manga.getDataChapter(data_chapter.url);
+    //   dataImages.push({
+    //     chapterName: dataImage.title,
+    //     images: dataImage.chapter_data,
+    //   });
+    // }
+    // return Promise.all(dataImages);
+
+    const { chapter_data, url } = await manga.getDataChapter(
+      detail_manga.chapters[0].url,
+    );
+    // const response = await axios.get(url);
+    // const header = response.headers;
+    for (const item of chapter_data) {
+      const itemDir = `data`;
+      const imageDir = `${itemDir}/chapter`;
+      if (!fs.existsSync(itemDir)) {
+        fs.mkdirSync(itemDir);
+      }
+
+      if (!fs.existsSync(imageDir)) {
+        fs.mkdirSync(imageDir);
+      }
+      await this.downloadImage(item.src_origin, imageDir);
+    }
   }
 
   async data_chapter(url: string): Promise<any> {

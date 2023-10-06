@@ -29,6 +29,7 @@
     "cloudinary": "^1.41.0",
     "fs": "^0.0.1-security",
     "manga-lib": "^1.1.2",
+    "os": "^0.1.2",
     "path": "^0.12.7",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1"

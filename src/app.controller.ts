@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  ParseIntPipe,
   Post,
   Query,
   UploadedFile,
@@ -14,14 +15,13 @@ import { FileInterceptor } from '@nestjs/platform-express';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get('last')
-  async getLast_Page(): Promise<any> {
-    return await this.appService.getLast_Page();
+  @Get('avatar')
+  async getLast_Page(@Query('page', ParseIntPipe) page: number): Promise<any> {
+    return await this.appService.getAndDownLoadImageByPage(page);
   }
   @Get('detail')
-  async detail_manga(@Query('url') url: string): Promise<any> {
-    console.log(url);
-    return await this.appService.detail_manga(url);
+  async detail_manga(): Promise<any> {
+    return await this.appService.detail_manga();
   }
 
   @Get('data')
