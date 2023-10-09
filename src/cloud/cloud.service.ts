@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UploadApiErrorResponse, UploadApiResponse, v2 } from 'cloudinary';
 import toStream = require('buffer-to-stream');
+import { transformString } from 'src/function/transfromString';
 @Injectable()
 export class CloudService {
   async uploadFileImage(
@@ -120,12 +121,18 @@ export class CloudService {
   async uploadImagesToCloudinaryV2(
     imagePaths: string[],
     folders: string[],
-  ): Promise<UploadApiResponse[] | UploadApiErrorResponse> {
+  ): Promise<
+    {
+      url: string;
+      public_id: string;
+    }[]
+  > {
     const uploadPromises: Promise<UploadApiResponse>[] = [];
 
     for (let i = 0; i < imagePaths.length; i++) {
       const imagePath = imagePaths[i];
       const folder = folders[i];
+
 
       const uploadPromise = new Promise<UploadApiResponse>(
         (resolve, reject) => {
@@ -138,10 +145,8 @@ export class CloudService {
             },
             (error, result) => {
               if (error) {
-                console.error(
-                  `Lỗi khi tải lên Cloudinary cho tệp ${imagePath}: ${error.message}`,
-                );
-                reject(error);
+                console.log(error);
+                return reject(error);
               } else {
                 resolve(result);
               }
@@ -150,17 +155,23 @@ export class CloudService {
         },
       );
 
-      uploadPromises.push(uploadPromise);
+      try {
+        uploadPromises.push(uploadPromise);
+      } catch (error) {
+        console.log(error);
+      }
     }
 
-    try {
-      // Sử dụng Promise.all để đợi tất cả các yêu cầu tải lên hoàn thành
-      const results = await Promise.all(uploadPromises);
-      return results;
-    } catch (error) {
-      // Xử lý lỗi nếu có
-      return error;
-    }
+    console.log('state 1: ' + uploadPromises.length);
+    const results = await Promise.all(uploadPromises);
+    console.log('state 2: ' + results.length);
+    const formattedResults = results.map((result) => {
+      return {
+        url: result.url,
+        public_id: result.public_id,
+      };
+    });
+    return formattedResults;
   }
 
   async getAllImageOnFolder(tag: string): Promise<any> {
