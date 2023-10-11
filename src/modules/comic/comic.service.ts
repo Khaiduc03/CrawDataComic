@@ -119,8 +119,11 @@ export class ComicService {
     }
   }
 
-  async downloadImage2(imageUrl: string, saveDir: string) {
+  async downloadImage2(imageUrl: string) {
     try {
+      if (!fs.existsSync('data')) {
+        fs.mkdirSync('data');
+      }
       const USER_AGENT =
         os.platform() === 'win32'
           ? 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36'
@@ -151,7 +154,7 @@ export class ComicService {
       do {
         imageFileName = `${paddedNumber(index)}.jpg`;
         // Tạo đường dẫn đầy đủ để lưu tệp
-        const imagePath = path.join(saveDir, imageFileName);
+        const imagePath = path.join('data', imageFileName);
 
         if (!fs.existsSync(imagePath)) {
           const writer = fs.createWriteStream(imagePath);

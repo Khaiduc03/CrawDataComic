@@ -1,16 +1,14 @@
 export function transformString(inputString: string): string {
-  let outputString = '';
+  // Sử dụng biểu thức chính quy để loại bỏ ký tự đặt biệt và dấu cách
+  const cleanString = inputString.replace(/[^a-zA-Z0-9]+/g, '_');
 
-  for (let i = 0; i < inputString.length; i++) {
-    const char = inputString[i];
-    if (char === ' ') {
-      outputString += '_';
+  let outputString = '';
+  for (let i = 0; i < cleanString.length; i++) {
+    const char = cleanString[i];
+    if (char === char.toUpperCase()) {
+      outputString += char;
     } else {
-      if (char === char.toUpperCase()) {
-        outputString += char;
-      } else {
-        outputString += char.toUpperCase();
-      }
+      outputString += char.toUpperCase();
     }
   }
 

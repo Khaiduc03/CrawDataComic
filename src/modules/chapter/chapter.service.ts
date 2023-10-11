@@ -13,7 +13,7 @@ export class ChapterService {
     private comicService: ComicService,
   ) {}
 
-  async getAllChapter(): Promise<any> {
+  async crawlAllChapter(): Promise<any> {
     const comics = await this.comicService.getComics();
     if (!comics) return undefined;
     const manga = new Manga().build(MangaType.TOONILY);
@@ -24,7 +24,7 @@ export class ChapterService {
 
       for (const chapter of chapters) {
         if (chapterCount >= 50) {
-          break; 
+          break;
         }
         const newChapter = new Chapter({
           chapter_name: chapter.title,
@@ -37,5 +37,9 @@ export class ChapterService {
         chapterCount++;
       }
     }
+  }
+
+  async getAllChapter(): Promise<Chapter[]> {
+    return await this.chapterRepository.find();
   }
 }

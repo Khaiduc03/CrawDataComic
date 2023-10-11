@@ -11,5 +11,6 @@ import { ChapterService } from './chapter.service';
   imports: [TypeOrmModule.forFeature([Chapter, Comic])],
   controllers: [ChapterController],
   providers: [ChapterService, CloudService, ComicService],
+  exports: [ChapterService, CloudService, ComicService, TypeOrmModule],
 })
 export class ChapterModule {}

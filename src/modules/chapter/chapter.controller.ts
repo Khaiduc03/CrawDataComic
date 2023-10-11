@@ -7,6 +7,6 @@ export class ChapterController {
 
   @Get()
   async getManga(): Promise<any> {
-    return await this.chapterService.getAllChapter();
+    return await this.chapterService.crawlAllChapter();
   }
 }
