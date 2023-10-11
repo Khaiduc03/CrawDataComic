@@ -1,51 +1,48 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import * as fs from 'fs';
+import * as fsx from 'fs-extra';
 import { Manga, MangaType } from 'manga-lib';
-import * as os from 'os';
-import { CloudService } from './cloud';
-import { uuids4 } from './function/uuid';
-import { Comic } from './entities/comic.entity';
-
 import {
   responseChapter,
   responseDetailManga,
 } from 'manga-lib/dist/src/types/type';
-import { transformString } from './function/transfromString';
-import { InjectRepository } from '@nestjs/typeorm';
+import * as os from 'os';
+import { CloudService } from 'src/cloud';
+import { Comic } from 'src/entities/comic.entity';
+import { transformString } from 'src/function/transfromString';
+import { Repository } from 'typeorm';
+
 const path = require('path');
 
 @Injectable()
-export class AppService {
-  constructor(private readonly cloud: CloudService) {}
+export class ComicService {
+  constructor(
+    private readonly cloud: CloudService,
+    @InjectRepository(Comic)
+    private readonly comicRepository: Repository<Comic>,
+  ) {}
 
   async getAndDownLoadImageByPage(page: number = 1): Promise<any> {
     const comics: Comic[] = [];
     const manga = new Manga().build(MangaType.TOONILY);
     const { data } = await manga.getListLatestUpdate(page);
+    console.log(data);
     data.sort((a, b) => a.title.localeCompare(b.title));
     for (const item of data) {
       const folder = transformString(item.title);
       const itemDir = `data/${folder}`;
       const imageDir = `${itemDir}/avatar`;
+      if (!fs.existsSync('data')) {
+        fs.mkdirSync('data');
+      }
       if (!fs.existsSync(itemDir)) {
         fs.mkdirSync(itemDir);
       }
       if (!fs.existsSync(imageDir)) {
         fs.mkdirSync(imageDir);
       }
-
-      // const detailComic = await this.getDetailManga(item.href);
-      // for (const chapter of detailComic.chapters) {
-      //   const imageChapter = await this.detail_chapter(chapter.url);
-      //   const imageChapterDir = `${itemDir}/${imageChapter.title}`;
-      //   if (!fs.existsSync(imageChapterDir)) {
-      //     fs.mkdirSync(imageChapterDir);
-      //   }
-      //   for (const image of imageChapter.chapter_data) {
-      //     await this.downloadImage2(image.src_origin, imageChapterDir);
-      //   }
-      // }
       const res = await this.downloadImage(item.image_thumbnail, imageDir);
       console.log(res + `+ index: ${data.indexOf(item)}`);
     }
@@ -60,14 +57,21 @@ export class AppService {
       const comic = new Comic({
         author: detailComic.author,
         comic_name: item.title,
-        description: 'Dummy description',
+        description:
+          'Protagonist Kang Han Soo killed the demon king after 10 years of being summoned in the fantasy world. Now it’s time to be sent back to earth. What’s this? the fantasy worlds god appears along with his report card. Because he removed all the obstacles that prevented him killing the demon king, his personality score came out as F. The regression that follows is that he has to return to the the start and begin again. Can Kang Han Soo end this endless returns?',
         views: detailComic.follows,
         public_id: arryObjectUrlComic[index]?.public_id,
         image_url: arryObjectUrlComic[index]?.url,
+        href: item.href,
       });
       comics.push(comic);
     }
-    return comics;
+    const response = await this.comicRepository.save(comics);
+    if (!response) {
+      throw new Error('Save failed');
+    }
+    await this.deleteDataDirectory();
+    return response;
   }
 
   async downloadImage(imageUrl: string, saveDir: string) {
@@ -180,7 +184,7 @@ export class AppService {
     subdirectories: string[];
     jpgFiles: string[];
   }> {
-    const dataDirectoryPath = path.join(__dirname, '..', 'data');
+    const dataDirectoryPath = path.join(__dirname, '../../../', 'data');
 
     try {
       const subdirectories = await fs.promises.readdir(dataDirectoryPath);
@@ -202,7 +206,6 @@ export class AppService {
               path.join(imagesDirectoryPath, file),
             ),
           );
-          console.log(jpgFiles);
         } catch (error) {
           // Xử lý lỗi nếu có trong từng thư mục con
           console.error(
@@ -256,9 +259,46 @@ export class AppService {
     return detail_chapter;
   }
 
+  async data_chapter(url: string): Promise<any> {
+    const manga = new Manga().build(MangaType.ASURASCANS);
+    const data_chapter = await manga.getDataChapter(
+      'https://asuratoon.com/3787011421-martial-god-regressed-to-level-2-chapter-29/',
+    );
+    console.log(data_chapter);
+    return data_chapter;
+  }
+
+  async search_manga(name: string): Promise<any> {
+    const manga = new Manga().build(MangaType.ASURASCANS);
+    const search_manga = await manga.search(name);
+    return search_manga;
+  }
+
   async readFile(files: any) {
     const file = files;
     const data = await fs.readFileSync(file.path, 'utf-8');
     return JSON.parse(data);
+  }
+
+  async getComics(): Promise<Comic[]> {
+    const comic = await this.comicRepository.find();
+    return comic;
+  }
+
+  async deleteDataDirectory() {
+    const dataDirectory = path.join(__dirname, '../../../', 'data');
+
+    try {
+      // Kiểm tra xem thư mục tồn tại trước khi xóa
+      if (await fsx.pathExists(dataDirectory)) {
+        // Xóa thư mục và nội dung bên trong
+        await fsx.remove(dataDirectory);
+        return 'Thư mục "data" và nội dung đã được xóa thành công.';
+      } else {
+        return 'Thư mục "data" không tồn tại.';
+      }
+    } catch (error) {
+      throw new Error(`Lỗi xóa thư mục "data": ${error.message}`);
+    }
   }
 }

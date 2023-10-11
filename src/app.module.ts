@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { CloudModule, CloudService } from './cloud';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CloudModule } from './cloud';
 import { TypeOrmService } from './database';
 import { ComicModule } from './modules/comic/comic.module';
+import { ChapterModule } from './modules/chapter/chapter.module';
 
 @Module({
   imports: [
@@ -13,8 +12,10 @@ import { ComicModule } from './modules/comic/comic.module';
       useClass: TypeOrmService,
     }),
     ComicModule,
+    ChapterModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, CloudService],
+  // controllers: [AppController, ChapterController],
+  // providers: [AppService, CloudService, ChapterService],
+  // exports: [CloudService, CloudModule],
 })
 export class AppModule {}

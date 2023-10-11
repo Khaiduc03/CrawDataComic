@@ -1,31 +1,64 @@
+import { Expose, plainToClass } from 'class-transformer';
+
 import { uuids4 } from 'src/function/uuid';
+import { Column, Entity } from 'typeorm';
+import { Base } from './base';
 
-export class Comic {
-  uuid: string;
-
+@Entity({
+  name: Comic.name.toLowerCase(),
+  orderBy: {
+    created_at: 'ASC',
+  },
+})
+export class Comic extends Base {
+  @Expose()
+  @Column({ type: 'varchar', length: 300, nullable: true })
   comic_name: string;
 
+  @Expose()
+  @Column({ type: 'boolean', default: true })
   isPublic: boolean;
 
+  @Expose()
+  @Column({ type: 'varchar', length: 300, nullable: true })
   author: string;
 
+  @Expose()
+  @Column({
+    type: 'text',
+    nullable: true,
+    default: 'thông tin vẫn đang được cập nhập',
+  })
   description: string;
+
+  @Expose()
+  @Column({
+    type: 'varchar',
+    length: 300,
+    nullable: true,
+  })
   views: string;
 
+  @Expose()
+  @Column({ type: 'varchar', length: 256, default: '' })
   image_url: string;
 
+  @Expose()
+  @Column({ type: 'varchar', length: 256, default: '' })
   public_id: string;
 
+  @Expose()
+  @Column({ type: 'varchar', length: 256, default: '' })
+  href: string;
+
   constructor(comic: Partial<Comic>) {
+    super(); // call constructor of BaseEntity
     if (comic) {
-      this.uuid = uuids4();
-      this.comic_name = comic.comic_name;
-      this.isPublic = true;
-      this.author = comic.author;
-      this.description = comic.description;
-      this.views = comic.views;
-      this.image_url = comic.image_url;
-      this.public_id = comic.public_id;
+      Object.assign(
+        this,
+        plainToClass(Comic, comic, { excludeExtraneousValues: true }),
+      );
+      this.uuid = comic.uuid || uuids4();
     }
   }
 }
