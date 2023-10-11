@@ -190,8 +190,7 @@ export class CloudService {
             imagePath,
             {
               folder: 'image',
-              use_filename: true,
-              tags: 'avatar',
+              tags: 'chapters',
             },
             (error, result) => {
               if (error) {

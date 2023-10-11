@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ImageService } from './image.service';
 
 @Controller('image')
@@ -6,8 +6,8 @@ export class ImageController {
   constructor(private readonly imageService: ImageService) {}
 
   @Get()
-  async crawlDataChapter(): Promise<any> {
-    return await this.imageService.crawlAllImage();
+  async crawlDataChapter(@Query('otp') opt:string): Promise<any> {
+    return await this.imageService.crawlAllImage(opt);
   }
 
   @Get('do-all')
