@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import * as fs from 'fs';
+
 import * as fsx from 'fs-extra';
 import { Manga, MangaType } from 'manga-lib';
 import {
@@ -58,8 +59,7 @@ export class ComicService {
         author: detailComic.author,
         comic_name: item.title,
         description:
-          'Protagonist Kang Han Soo killed the demon king after 10 years of being summoned in the fantasy world. Now it’s time to be sent back to earth. What’s this? the fantasy worlds god appears along with his report card. Because he removed all the obstacles that prevented him killing the demon king, his personality score came out as F. The regression that follows is that he has to return to the the start and begin again. Can Kang Han Soo end this endless returns?',
-        views: detailComic.follows,
+          'Protagonist Kang Han Soo killed the demon king after 10 years of being summoned in the fantasy world. Now it is time to be sent back to earth. What’s this? the fantasy worlds god appears along with his report card. Because he removed all the obstacles that prevented him killing the demon king, his personality score came out as F. The regression that follows is that he has to return to the the start and begin again. Can Kang Han Soo end this endless returns?',
         public_id: arryObjectUrlComic[index]?.public_id,
         image_url: arryObjectUrlComic[index]?.url,
         href: item.href,
@@ -145,7 +145,7 @@ export class ComicService {
       });
 
       // Tạo tên tệp dựa trên số thứ tự
-      const maxImageCount = 200; // Số tệp hình ảnh tối đa
+      const maxImageCount = 40; // Số tệp hình ảnh tối đa
       const paddedNumber = (index: number) => index.toString().padStart(3, '0'); // Định dạng số thứ tự
 
       let index = 1; // Bắt đầu từ tệp số 001
@@ -179,7 +179,7 @@ export class ComicService {
       console.error('Đã đạt đến số tệp hình ảnh tối đa.');
       return null;
     } catch (error) {
-      throw error;
+      console.log(error);
     }
   }
 
@@ -279,7 +279,8 @@ export class ComicService {
 
   async readFile(files: any) {
     const file = files;
-    const data = await fs.readFileSync(file.path, 'utf-8');
+
+    const data = fs.readFileSync(file.path, 'utf-8');
     return JSON.parse(data);
   }
 

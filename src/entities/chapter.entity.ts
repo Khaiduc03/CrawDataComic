@@ -15,7 +15,7 @@ export class Chapter extends Base {
   @Expose()
   @ManyToOne(() => Comic, (comic) => comic.uuid)
   @JoinColumn({ name: 'comic', referencedColumnName: 'uuid' })
-  comic: Comic;
+  comic: string;
 
   @Expose()
   @Column({ type: 'varchar', length: 300, nullable: true })

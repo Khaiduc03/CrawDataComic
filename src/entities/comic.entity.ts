@@ -33,11 +33,11 @@ export class Comic extends Base {
 
   @Expose()
   @Column({
-    type: 'varchar',
-    length: 300,
+    type: 'integer',
     nullable: true,
+    default: 0,
   })
-  views: string;
+  views: number;
 
   @Expose()
   @Column({ type: 'varchar', length: 256, default: '' })

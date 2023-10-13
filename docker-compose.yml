@@ -5,7 +5,7 @@ services:
     image: bitnami/postgresql:15.4.0-debian-11-r34
     container_name: crawl
     ports:
-      - '5432:5432'
+      - '5435:5432'
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_USER: postgres

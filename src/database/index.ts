@@ -7,7 +7,7 @@ export class TypeOrmService implements TypeOrmOptionsFactory {
     return {
       type: 'postgres',
       host: '127.0.0.1',
-      port: 5432,
+      port: 5435,
       username: 'postgres',
       password: 'postgres',
       database: 'crawl',

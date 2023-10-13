@@ -30,7 +30,7 @@ export class Image extends Base {
   @Expose()
   @ManyToOne(() => Chapter, (chapter) => chapter.uuid)
   @JoinColumn({ name: 'chapter_uuid', referencedColumnName: 'uuid' })
-  chapter_uuid: string;
+  chapter: string;
 
   constructor(image: Partial<Image>) {
     super();

@@ -179,48 +179,53 @@ export class CloudService {
       public_id: string;
     }[]
   > {
-    const uploadPromises: Promise<UploadApiResponse>[] = [];
+    try {
+      const uploadPromises: Promise<UploadApiResponse>[] = [];
 
-    for (let i = 0; i < imagePaths.length; i++) {
-      const imagePath = imagePaths[i];
+      for (let i = 0; i < imagePaths.length; i++) {
+        const imagePath = imagePaths[i];
 
-      const uploadPromise = new Promise<UploadApiResponse>(
-        (resolve, reject) => {
-          const upload = v2.uploader.upload(
-            imagePath,
-            {
-              folder: 'image',
-              tags: 'chapters',
-            },
-            (error, result) => {
-              if (error) {
-                console.log(error);
-                return reject(error);
-              } else {
-                resolve(result);
-              }
-            },
-          );
-        },
-      );
+        const uploadPromise = new Promise<UploadApiResponse>(
+          (resolve, reject) => {
+            const upload = v2.uploader.upload(
+              imagePath,
+              {
+                folder: 'image',
+                use_filename: false,
+                
+              },
+              (error, result) => {
+                if (error) {
+                  console.log(error);
+                  return reject(error);
+                } else {
+                  resolve(result);
+                }
+              },
+            );
+          },
+        );
 
-      try {
-        uploadPromises.push(uploadPromise);
-      } catch (error) {
-        console.log(error);
+        try {
+          uploadPromises.push(uploadPromise);
+        } catch (error) {
+          console.log(error);
+        }
       }
-    }
 
-    console.log('state 1: ' + uploadPromises.length);
-    const results = await Promise.all(uploadPromises);
-    console.log('state 2: ' + results.length);
-    const formattedResults = results.map((result) => {
-      return {
-        url: result.url,
-        public_id: result.public_id,
-      };
-    });
-    return formattedResults;
+      console.log('state 1: ' + uploadPromises.length);
+      const results = await Promise.all(uploadPromises);
+      console.log('state 2: ' + results.length);
+      const formattedResults = results.map((result) => {
+        return {
+          url: result.url,
+          public_id: result.public_id,
+        };
+      });
+      return formattedResults;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async getAllImageOnFolder(tag: string): Promise<any> {
