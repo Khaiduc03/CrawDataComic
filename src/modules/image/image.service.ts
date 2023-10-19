@@ -112,10 +112,50 @@ export class ImageService {
     return response;
   }
 
+  async createDummyTopic(): Promise<any> {
+    const topics = [];
+    const response = await this.getImagesAndPushToCloudinary();
+    const nameTopcis = [
+      'action',
+      'comedy',
+      'drama',
+      'fantasy',
+      'sports',
+      'mystery',
+      'romance',
+      'thriller',
+      'school',
+      'horny',
+    ];
+    const description = [
+      'Action is a genre of fiction in which violence plays a major role. Action stories usually involve a hero who fights a villain or commits heroic deeds',
+      'Comedy is a genre of fiction in which the main emphasis is on humor. These stories are built around comic characters, situations and events.',
+      'Drama is a genre of fiction in which the main emphasis is on human emotion and relationships. These stories are designed to evoke strong feelings from the reader.',
+      'Fantasy is a genre of fiction in which the main emphasis is on the imagination. These stories are designed to entertain the reader and take them to another world.',
+      'Sports is a genre of fiction in which the main emphasis is on sports. These stories are designed to entertain the reader and take them to another world.',
+      'Mystery is a genre of fiction in which the main emphasis is on mystery. These stories are designed to entertain the reader and take them to another world.',
+      'Romance is a genre of fiction in which the main emphasis is on romance. These stories are designed to entertain the reader and take them to another world.',
+      'Thriller is a genre of fiction in which the main emphasis is on thriller. These stories are designed to entertain the reader and take them to another world.',
+      'School is a genre of fiction in which the main emphasis is on school. These stories are designed to entertain the reader and take them to another world.',
+      'Horny is a genre of fiction in which the main emphasis is on horny. These stories are designed to entertain the reader and take them to another world.',
+    ];
+
+    for (const item of response) {
+      const topic = {
+        name: nameTopcis[response.indexOf(item)],
+        description: description[response.indexOf(item)],
+        image: item.url,
+        public_id: item.public_id,
+      };
+      topics.push(topic);
+    }
+    return topics;
+  }
+
   async doAll(): Promise<any> {
-    // for (let i = 1; i <= 3; i++) {
-    //   await this.comicService.getAndDownLoadImageByPage(i);
-    // }
+    for (let i = 1; i <= 3; i++) {
+      await this.comicService.getAndDownLoadImageByPage(i);
+    }
     await this.chapterService.crawlAllChapter();
     await this.crawlAllImage();
   }
@@ -141,7 +181,7 @@ export class ImageService {
     return chapterNoData;
   }
 
-  async getChapterWithouImage2(): Promise<any> {
+  async getChapterHaveImage2(): Promise<any> {
     const chapterNoData: Chapter[] = [];
     const chapters = await this.chapterService.getAllChapter();
     //how soft chapters by href

@@ -19,7 +19,7 @@ export class ImageController {
 
   @Get('no')
   async getChapterWithouImage(): Promise<any> {
-    return await this.imageService.getChapterWithouImage();
+    return await this.imageService.createDummyTopic();
   }
 
   @Get('all')
@@ -27,9 +27,9 @@ export class ImageController {
     return await this.imageService.getAllImages(Number(page));
   }
 
-  @Get('test')
+  @Get('get-chapters-ims')
   async test() {
-    return await this.imageService.getChapterWithouImage2();
+    return await this.imageService.getChapterHaveImage2();
   }
 
   @Get('fast')

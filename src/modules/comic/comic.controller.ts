@@ -15,4 +15,6 @@ export class ComicController {
   async getAllComic(): Promise<Comic[]> {
     return await this.comicService.getComics();
   }
+
+
 }
