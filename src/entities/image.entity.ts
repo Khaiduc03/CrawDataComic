@@ -20,10 +20,6 @@ export class Image extends Base {
   url: string;
 
   @Expose()
-  @Column({ type: 'varchar', length: 300, nullable: true })
-  secure_url: string;
-
-  @Expose()
   @Column({ type: 'int', nullable: true })
   page: number;
 

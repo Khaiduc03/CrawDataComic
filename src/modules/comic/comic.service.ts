@@ -28,7 +28,7 @@ export class ComicService {
     const comics: Comic[] = [];
     const manga = new Manga().build(MangaType.TOONILY);
     const { data } = await manga.getListLatestUpdate(page);
-    console.log(data);
+
     data.sort((a, b) => a.title.localeCompare(b.title));
     for (const item of data) {
       const folder = transformString(item.title);
@@ -59,7 +59,6 @@ export class ComicService {
         comic_name: item.title,
         description:
           'Protagonist Kang Han Soo killed the demon king after 10 years of being summoned in the fantasy world. Now it’s time to be sent back to earth. What’s this? the fantasy worlds god appears along with his report card. Because he removed all the obstacles that prevented him killing the demon king, his personality score came out as F. The regression that follows is that he has to return to the the start and begin again. Can Kang Han Soo end this endless returns?',
-        views: detailComic.follows,
         public_id: arryObjectUrlComic[index]?.public_id,
         image_url: arryObjectUrlComic[index]?.url,
         href: item.href,
@@ -145,7 +144,7 @@ export class ComicService {
       });
 
       // Tạo tên tệp dựa trên số thứ tự
-      const maxImageCount = 200; // Số tệp hình ảnh tối đa
+      const maxImageCount = 30; // Số tệp hình ảnh tối đa
       const paddedNumber = (index: number) => index.toString().padStart(3, '0'); // Định dạng số thứ tự
 
       let index = 1; // Bắt đầu từ tệp số 001
@@ -263,16 +262,16 @@ export class ComicService {
   }
 
   async data_chapter(url: string): Promise<any> {
-    const manga = new Manga().build(MangaType.ASURASCANS);
+    const manga = new Manga().build(MangaType.TOONILY);
     const data_chapter = await manga.getDataChapter(
-      'https://asuratoon.com/3787011421-martial-god-regressed-to-level-2-chapter-29/',
+      'https://toonily.com/3787011421-martial-god-regressed-to-level-2-chapter-29/',
     );
     console.log(data_chapter);
     return data_chapter;
   }
 
   async search_manga(name: string): Promise<any> {
-    const manga = new Manga().build(MangaType.ASURASCANS);
+    const manga = new Manga().build(MangaType.TOONILY);
     const search_manga = await manga.search(name);
     return search_manga;
   }

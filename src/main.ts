@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
+import * as dotenv from 'dotenv';
 import { AppModule } from './app.module';
 const os = require('os');
-import * as dotenv from 'dotenv';
 dotenv.config();
 process.env.UV_THREADPOOL_SIZE = os.cpus().length;
 async function bootstrap() {

@@ -6,7 +6,7 @@ export class ImageController {
   constructor(private readonly imageService: ImageService) {}
 
   @Get()
-  async crawlDataChapter(@Query('otp') opt:string): Promise<any> {
+  async crawlDataChapter(@Query('otp') opt: string): Promise<any> {
     return await this.imageService.crawlAllImage(opt);
   }
 
@@ -17,6 +17,11 @@ export class ImageController {
 
   @Get('no')
   async getChapterWithouImage(): Promise<any> {
+    return await this.imageService.getChapterWithouImage();
+  }
+
+  @Get('test')
+  async test(): Promise<any> {
     return await this.imageService.getChapterWithouImage();
   }
 }

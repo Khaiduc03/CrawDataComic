@@ -4,10 +4,10 @@ export const CloudProvider = {
   provide: 'Cloud',
   useFactory: (): void => {
     v2.config({
-      cloud_name: 'demvtgvo4',
-      api_key: '325114566867761',
-      api_secret: 'CIUSIsyU6bPg_BcFFEDiTuKkZBQ',
-      secure: true,
+      cloud_name: 'dxz3irfbf',
+      api_key: '936998117639393',
+      api_secret: 'WTtUPPb2NQRM-4nE4E9VKRTnYD0',
+      
     });
   },
 };

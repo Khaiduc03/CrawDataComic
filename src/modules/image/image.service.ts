@@ -22,11 +22,12 @@ export class ImageService {
   async crawlAllImage(opt: string = '1'): Promise<any> {
     try {
       //  const chapters = await this.chapterService.getAllChapter();
+      console.log(opt);
       let chapters: Chapter[] = [];
-      if (opt === '1') {
-        chapters = await this.chapterService.getAllChapter();
-      } else {
+      if (opt === '2') {
         chapters = await this.getChapterWithouImage();
+      } else {
+        chapters = await this.chapterService.getAllChapter();
       }
 
       const manga = new Manga().build(MangaType.TOONILY);
@@ -35,7 +36,7 @@ export class ImageService {
         const { chapter_data } = await manga.getDataChapter(chapter.href);
         let imageCount = 0;
         for (const item of chapter_data) {
-          if (imageCount >= 50) {
+          if (imageCount >= 30) {
             break;
           }
           await this.comicService.downloadImage2(item.src_origin);
@@ -108,8 +109,8 @@ export class ImageService {
   }
 
   async doAll(): Promise<any> {
-    for (let i = 1; i <= 5; i++) {
-      const response = await this.comicService.getAndDownLoadImageByPage(i);
+    for (let i = 8; i <= 10; i++) {
+      await this.comicService.getAndDownLoadImageByPage(i);
     }
     await this.chapterService.crawlAllChapter();
     await this.crawlAllImage();
@@ -118,6 +119,7 @@ export class ImageService {
   async getChapterWithouImage(): Promise<Chapter[]> {
     const chapterNoData: Chapter[] = [];
     const chapters = await this.chapterService.getAllChapter();
+    chapters.sort((a, b) => a.href.localeCompare(b.href));
     for (const chapter of chapters) {
       const images = await this.imageRepository
         .createQueryBuilder('image')
@@ -129,6 +131,13 @@ export class ImageService {
         chapterNoData.push(chapter);
       }
     }
+    console.log(chapterNoData.length);
     return chapterNoData;
+  }
+
+  async test() {
+    for (let i = 1; i <= 10000; i++) {
+      console.log(i);
+    }
   }
 }
